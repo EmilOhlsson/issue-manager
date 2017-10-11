@@ -1,0 +1,8 @@
+[package]
+name = "issue-handler"
+version = "0.1.0"
+authors = ["Emil Ohlsson <kotte@kottland.net>"]
+
+[dependencies]
+reqwest = "0.8.0"
+git2 = "0.6.8"
