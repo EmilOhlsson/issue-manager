@@ -1,10 +1,42 @@
+#[macro_use]
+extern crate serde_derive;
+
 extern crate git2;
+extern crate serde;
+
 extern crate reqwest;
+extern crate serde_json;
+
+#[macro_use]
+extern crate prettytable;
 
 use git2::Repository;
 use std::io::Read;
 use std::error;
 use std::fmt;
+
+//use termion::style;
+
+use prettytable::Table;
+
+#[derive(Deserialize, Debug)]
+struct GithubLabel {
+    name: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct GithubUser {
+    login: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct GithubIssue {
+    assignee: GithubUser,
+    body: String,
+    labels: Vec<GithubLabel>,
+    state: String,
+    title: String,
+}
 
 /* TODO: Should probably add a Trait for Issues and implementing types GithubIssue
  * and GitlabIssue */
@@ -101,5 +133,19 @@ fn main() {
     let addr_tmp = get_server(".", "origin").unwrap();
     let addr = to_api_address(&addr_tmp);
     println!("-- {:?}", addr);
-    println!("{:?}", get_issues(&addr));
+    let issues = get_issues(&addr).unwrap();
+    println!("Issues: {:?}", issues);
+    let issues_foo = serde_json::from_str::<Vec<GithubIssue>>(&issues).unwrap();
+    println!("Dawg: {:?}", issues_foo);
+
+    let mut table = Table::new();
+    table.add_row(row![b -> "Title", b-> "Assignee", b -> "Description"]);
+    for i in &issues_foo {
+        table.add_row(row![
+            format!("{}", i.title),
+            format!("@{}", i.assignee.login),
+            i.body
+        ]);
+    }
+    table.printstd();
 }
