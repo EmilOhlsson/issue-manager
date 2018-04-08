@@ -28,12 +28,19 @@ fn main() {
     let addr = to_api_address(&addr_tmp);
     println!("-- {:?}", addr);
     let issues = get_issues(&addr).unwrap();
-    let issues_foo = serde_json::from_str::<Vec<GithubIssue>>(&issues).unwrap();
+    let issues_foo = serde_json::from_str::<Vec<GithubIssue>>(&issues);
 
-    let mut table = Table::new();
-    table.add_row(row![b -> "Title", b-> "Assignee", b -> "Description"]);
-    for i in &issues_foo {
-        table.add_row(row![i.name(), i.assignee(), i.description()]);
+    match issues_foo {
+        Ok(issues_bar) => {
+            let mut table = Table::new();
+            table.add_row(row![b -> "Title", b-> "Assignee", b -> "Description"]);
+            for i in &issues_bar {
+                table.add_row(row![i.name(), i.assignee(), i.description()]);
+            }
+            table.printstd();
+        }
+        Err(_) => {
+            println!("{:?}", issues);
+        }
     }
-    table.printstd();
 }
