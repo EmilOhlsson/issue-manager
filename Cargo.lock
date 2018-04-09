@@ -304,6 +304,7 @@ name = "issue-handler"
 version = "0.1.0"
 dependencies = [
  "git2 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "hyper 0.11.24 (registry+https://github.com/rust-lang/crates.io-index)",
  "prettytable-rs 0.6.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "reqwest 0.8.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.36 (registry+https://github.com/rust-lang/crates.io-index)",

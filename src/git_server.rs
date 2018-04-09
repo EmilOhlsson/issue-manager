@@ -2,7 +2,40 @@ use git2;
 use reqwest;
 use std::io::Read;
 use iman_error::IManError;
+use std::{fmt, fs::File, str::FromStr};
 
+use toml;
+
+use hyper;
+use hyper::header::{Authorization, Scheme};
+
+header! { (PrivateToken, "PRIVATE_TOKEN") => [String] }
+
+// TODO: Token should probably be pushed upstream
+#[derive(Clone, PartialEq, Debug)]
+pub struct Token {
+	pub token: String
+}
+
+impl Scheme for Token {
+	fn scheme() -> Option<&'static str> {
+		Some("token")
+	}
+
+	fn fmt_scheme(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		write!(f, "{}", self.token)
+	}
+}
+
+impl FromStr for Token {
+	type Err = hyper::Error;
+	fn from_str(s: &str) -> hyper::Result<Token> {
+		Ok(Token { token: s.to_owned()})
+	}
+}
+
+/* TODO: Apart from URL this also need to store server name to be able to lookup
+ * which token should use for the server */
 #[derive(Debug)]
 pub enum GitServer {
     Github(String),
@@ -35,6 +68,7 @@ pub fn to_api_address(addr: &str) -> GitServer {
     if addr.starts_with("git@") {
         let ts = addr.split(url_splitter).collect::<Vec<&str>>();
         if ts[1] == "github.com" {
+            
             GitServer::Github(format!(
                 "https://api.{}/repos/{}/{}",
                 ts[1],
@@ -59,12 +93,22 @@ pub fn to_api_address(addr: &str) -> GitServer {
 /* TODO: Return a list of Issues */
 pub fn get_issues(server: &GitServer) -> Result<String, IManError> {
     let mut result = String::new();
+    let client = reqwest::Client::new();
     match server {
         &GitServer::Github(ref addr) => {
-            reqwest::get(&format!("{}/issues", addr))?.read_to_string(&mut result)?;
+            client.get(&format!("{}/issues", addr))
+                .header(Authorization(
+                    Token {
+                        token: "foo-licious".to_owned()
+                    }))
+                .send()?
+                .read_to_string(&mut result)?;
         }
         &GitServer::Gitlab(ref addr) => {
-            reqwest::get(&format!("{}/issues", addr))?.read_to_string(&mut result)?;
+            client.get(&format!("{}/issues", addr))
+                .header(PrivateToken("foo-licious".to_owned()))
+                .send()?
+                .read_to_string(&mut result)?;
         }
     }
     Ok(result)

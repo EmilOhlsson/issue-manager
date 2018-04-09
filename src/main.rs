@@ -6,9 +6,13 @@ extern crate serde;
 
 extern crate reqwest;
 extern crate serde_json;
+extern crate toml;
 
 #[macro_use]
 extern crate prettytable;
+
+#[macro_use]
+extern crate hyper;
 
 use prettytable::Table;
 
