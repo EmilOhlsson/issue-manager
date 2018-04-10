@@ -23,7 +23,24 @@ mod git_server;
 use issues::{GithubIssue, Issue};
 use git_server::*;
 
+fn stuff() {
+    use std::fs::File;
+    use std::io::prelude::*;
+    use toml::Value;
+
+    let mut f = File::open(".iman.toml").unwrap();
+    let mut buffer = String::new();
+    f.read_to_string(&mut buffer).unwrap();
+
+    println!("Read: {}", buffer);
+    let table = buffer.parse::<Value>().unwrap();
+    println!("{:?}", table);
+    println!("Deeenk {}", table["foo"]["yoo"]);
+}
+
 fn main() {
+    stuff();
+
     if let Ok(server) = get_server(".", "origin") {
         let url = to_api_address(&server);
         println!("{:?}", url);
