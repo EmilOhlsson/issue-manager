@@ -17,7 +17,7 @@ extern crate hyper;
 use prettytable::Table;
 
 mod issues;
-mod iman_error;
+mod error;
 mod git_server;
 mod settings;
 
@@ -29,12 +29,15 @@ use git_server::*;
 use std::env;
 
 fn main() {
-    let settings = get_setings();
+    let settings = get_settings();
 
+    /*
     if let Ok(server) = get_server(".", "origin") {
         let url = to_api_address(&server);
         println!("{:?}", url);
     }
+    */
+    /*
     let addr_tmp = get_server(".", "origin").unwrap();
     let addr = to_api_address(&addr_tmp);
     println!("-- {:?}", addr);
@@ -54,4 +57,5 @@ fn main() {
             println!("{:?}", issues);
         }
     }
+    */
 }

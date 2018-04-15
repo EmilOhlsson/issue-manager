@@ -1,7 +1,7 @@
 use git2;
 use reqwest;
 use std::io::Read;
-use iman_error::{IMResult, IMError};
+use error::{IMResult, IMError};
 use std::{fmt, str::FromStr};
 
 use toml;

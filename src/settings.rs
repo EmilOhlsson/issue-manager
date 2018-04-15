@@ -1,4 +1,10 @@
-fn get_settings() -> IMResult<toml::Value> {
+use std::env;
+use error::IMResult;
+use toml::Value;
+
+type IMSettings = Value;
+
+pub fn get_settings() -> IMResult<IMSettings> {
     use std::fs::File;
     use std::io::prelude::*;
     use toml::Value;
@@ -11,6 +17,6 @@ fn get_settings() -> IMResult<toml::Value> {
     let table = buffer.parse::<Value>()?;
     println!("{:?}", table);
     println!("Deeenk {}", table["foo"]["yoo"]);
-    table;
+    Ok(table)
 }
 
