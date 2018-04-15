@@ -126,8 +126,13 @@ pub fn get_issues(server: &GitServer) -> IMResult<Vec<IMIssue>> {
             GitProtocol::GitLab => request.header(PrivateToken(key.to_owned())),
         };
     }
-    /* TODO need to check http status after this call to detect errors */
-    request.send()?.read_to_string(&mut response)?;
+    let mut rsp = request.send()?;
+    rsp.read_to_string(&mut response)?;
+    if rsp.status() != reqwest::StatusCode::Ok {
+        println!("Status: {:?}", rsp.status());
+        println!("Got: {:?}", response);
+        return Err(IMError::new("Error fetching issues"));
+    }
 
     match server.protocol {
         GitProtocol::GitHub => {
