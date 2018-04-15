@@ -19,27 +19,17 @@ use prettytable::Table;
 mod issues;
 mod iman_error;
 mod git_server;
+mod settings;
+
+use settings::get_settings;
 
 use issues::{GithubIssue, Issue};
 use git_server::*;
 
-fn stuff() {
-    use std::fs::File;
-    use std::io::prelude::*;
-    use toml::Value;
-
-    let mut f = File::open(".iman.toml").unwrap();
-    let mut buffer = String::new();
-    f.read_to_string(&mut buffer).unwrap();
-
-    println!("Read: {}", buffer);
-    let table = buffer.parse::<Value>().unwrap();
-    println!("{:?}", table);
-    println!("Deeenk {}", table["foo"]["yoo"]);
-}
+use std::env;
 
 fn main() {
-    stuff();
+    let settings = get_setings();
 
     if let Ok(server) = get_server(".", "origin") {
         let url = to_api_address(&server);

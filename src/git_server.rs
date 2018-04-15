@@ -1,7 +1,7 @@
 use git2;
 use reqwest;
 use std::io::Read;
-use iman_error::IManError;
+use iman_error::{IMResult, IMError};
 use std::{fmt, str::FromStr};
 
 use toml;
@@ -55,10 +55,10 @@ fn url_splitter(ch: char) -> bool {
     ch == '@' || ch == ':' || ch == '/'
 }
 
-fn get_remote_server(path: &str, remote: &str) -> Result<String, IManError> {
+fn get_remote_server(path: &str, remote: &str) -> IMResult<String> {
     let repo = git2::Repository::open(path)?;
     let git_remote = repo.find_remote(remote)?;
-    Ok(String::from(git_remote.url().ok_or(IManError::new(
+    Ok(String::from(git_remote.url().ok_or(IMError::new(
         format!("No url associated with {}", remote),
     ))?))
 }
@@ -66,7 +66,7 @@ fn get_remote_server(path: &str, remote: &str) -> Result<String, IManError> {
 /* TODO: Translating address to API url can fail */
 /* TODO: Create struct and add some FromStr trait to it to be able to parse addresses from Strings */
 /* TODO: Build some kind of structure with repo information */
-fn get_git_server(addr: &str) -> Result<GitServer, IManError> {
+fn get_git_server(addr: &str) -> IMResult<GitServer> {
     /* Assume that address is either something like
      * https://github.com/EmilOhlsson/issue-manager.git
      * git@github.com:EmilOhlsson/issue-manager.git
@@ -103,7 +103,7 @@ pub fn get_server(
     path: &str,
     remote: &str,
     configuration: &toml::Value,
-) -> Result<GitServer, IManError> {
+) -> IMResult<GitServer> {
     let addr = get_remote_server(path, remote)?;
     let mut server = get_git_server(&addr)?;
     // TODO Look in configuration for API key
@@ -111,7 +111,7 @@ pub fn get_server(
 }
 
 /* TODO: Return a list of Issues */
-pub fn get_issues(server: &GitServer) -> Result<String, IManError> {
+pub fn get_issues(server: &GitServer) -> IMResult<String> {
     /* TODO: And clean up this
     let mut result = String::new();
     let client = reqwest::Client::new();

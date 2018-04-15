@@ -9,13 +9,13 @@ pub struct IMError {
     msg: String,
 }
 
-impl fmt::Display for IMError {
+impl fmt::Display for IMErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.msg)
     }
 }
 
-impl error::Error for IMError {
+impl error::Error for IMErr {
     fn description(&self) -> &str {
         &self.msg
     }
@@ -26,70 +26,72 @@ impl error::Error for IMError {
 }
 
 #[derive(Debug)]
-pub enum IManError {
+pub enum IMError {
     Reqwest(reqwest::Error),
     Io(std::io::Error),
     Git(git2::Error),
-    IMError(IMError),
+    IM(IMErr),
 }
 
-impl IManError {
-    pub fn new(msg: String) -> IManError {
-        IManError::IMError(IMError { msg: msg })
+pub type IMResult<T> = Result<T, IMError>;
+
+impl IMError {
+    pub fn new(msg: String) -> IMError {
+        IMError::IMError(IMError { msg: msg })
     }
 }
 
-impl fmt::Display for IManError {
+impl fmt::Display for IMError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            IManError::Reqwest(ref err) => write!(f, "Error in request: {}", err),
-            IManError::Io(ref err) => write!(f, "IO error: {}", err),
-            IManError::Git(ref err) => write!(f, "git error: {}", err),
-            IManError::IMError(ref err) => write!(f, "{}", err),
+            IMError::Reqwest(ref err) => write!(f, "Error in request: {}", err),
+            IMError::Io(ref err) => write!(f, "IO error: {}", err),
+            IMError::Git(ref err) => write!(f, "git error: {}", err),
+            IMError::IMError(ref err) => write!(f, "{}", err),
         }
     }
 }
 
-impl error::Error for IManError {
+impl error::Error for IMError {
     fn description(&self) -> &str {
         match *self {
-            IManError::Reqwest(ref err) => err.description(),
-            IManError::Io(ref err) => err.description(),
-            IManError::Git(ref err) => err.description(),
-            IManError::IMError(ref err) => err.description(),
+            IMError::Reqwest(ref err) => err.description(),
+            IMError::Io(ref err) => err.description(),
+            IMError::Git(ref err) => err.description(),
+            IMError::IMError(ref err) => err.description(),
         }
     }
 
     fn cause(&self) -> Option<&error::Error> {
         match *self {
-            IManError::Reqwest(ref err) => Some(err),
-            IManError::Io(ref err) => Some(err),
-            IManError::Git(ref err) => Some(err),
-            IManError::IMError(ref err) => Some(err),
+            IMError::Reqwest(ref err) => Some(err),
+            IMError::Io(ref err) => Some(err),
+            IMError::Git(ref err) => Some(err),
+            IMError::IMError(ref err) => Some(err),
         }
     }
 }
 
-impl From<std::io::Error> for IManError {
-    fn from(err: std::io::Error) -> IManError {
-        IManError::Io(err)
+impl From<std::io::Error> for IMError {
+    fn from(err: std::io::Error) -> IMError {
+        IMError::Io(err)
     }
 }
 
-impl From<reqwest::Error> for IManError {
-    fn from(err: reqwest::Error) -> IManError {
-        IManError::Reqwest(err)
+impl From<reqwest::Error> for IMError {
+    fn from(err: reqwest::Error) -> IMError {
+        IMError::Reqwest(err)
     }
 }
 
-impl From<git2::Error> for IManError {
-    fn from(err: git2::Error) -> IManError {
-        IManError::Git(err)
+impl From<git2::Error> for IMError {
+    fn from(err: git2::Error) -> IMError {
+        IMError::Git(err)
     }
 }
 
-impl From<IMError> for IManError {
-    fn from(err: IMError) -> IManError {
-        IManError::IMError(err)
+impl From<IMError> for IMError {
+    fn from(err: IMError) -> IMError {
+        IMError::IMError(err)
     }
 }
