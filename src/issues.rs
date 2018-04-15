@@ -5,25 +5,34 @@ pub trait Issue {
 }
 
 #[derive(Deserialize, Debug)]
-struct GithubLabel {
+struct GitHubLabel {
     name: String,
 }
 
 #[derive(Deserialize, Debug)]
-struct GithubUser {
+struct GitHubUser {
     login: String,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct GithubIssue {
-    assignee: GithubUser,
+pub struct GitHubIssue {
+    assignee: GitHubUser,
     body: String,
-    labels: Vec<GithubLabel>,
+    labels: Vec<GitHubLabel>,
     state: String,
     title: String,
 }
 
-impl Issue for GithubIssue {
+#[derive(Deserialize, Debug)]
+pub struct GitLabIssue {}
+
+#[derive(Debug)]
+pub enum IMIssue {
+    GitHub(GitHubIssue),
+    GitLab(GitLabIssue),
+}
+
+impl Issue for GitHubIssue {
     fn name(&self) -> &str {
         &self.title
     }
@@ -34,5 +43,28 @@ impl Issue for GithubIssue {
 
     fn description(&self) -> &str {
         &self.body
+    }
+}
+
+impl Issue for IMIssue {
+    fn name(&self) -> &str {
+        match *self {
+            IMIssue::GitHub(ref i) => i.name(),
+            _ => unimplemented!(),
+        }
+    }
+
+    fn assignee(&self) -> &str {
+        match *self {
+            IMIssue::GitHub(ref i) => i.assignee(),
+            _ => unimplemented!(),
+        }
+    }
+
+    fn description(&self) -> &str {
+        match *self {
+            IMIssue::GitHub(ref i) => i.description(),
+            _ => unimplemented!(),
+        }
     }
 }

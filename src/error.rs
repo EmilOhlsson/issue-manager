@@ -4,6 +4,7 @@ use reqwest;
 use git2;
 use std;
 use toml;
+use serde_json;
 
 #[derive(Debug)]
 pub struct IMErr {
@@ -33,14 +34,17 @@ pub enum IMError {
     Git(git2::Error),
     Var(std::env::VarError),
     De(toml::de::Error),
+    SerdeJson(serde_json::Error),
     IM(IMErr),
 }
 
 pub type IMResult<T> = Result<T, IMError>;
 
 impl IMError {
-    pub fn new(msg: String) -> IMError {
-        IMError::IM(IMErr { msg: msg })
+    pub fn new(msg: &str) -> IMError {
+        IMError::IM(IMErr {
+            msg: String::from(msg),
+        })
     }
 }
 
@@ -51,7 +55,8 @@ impl fmt::Display for IMError {
             IMError::Io(ref err) => write!(f, "IO error: {}", err),
             IMError::Git(ref err) => write!(f, "git error: {}", err),
             IMError::Var(ref err) => write!(f, "Environment error: {}", err),
-            IMError::De(ref err) => write!(f, "DE error: {}", err),
+            IMError::De(ref err) => write!(f, "Deserialization error: {}", err),
+            IMError::SerdeJson(ref err) => write!(f, "JSON error: {}", err),
             IMError::IM(ref err) => write!(f, "{}", err),
         }
     }
@@ -65,6 +70,7 @@ impl error::Error for IMError {
             IMError::Git(ref err) => err.description(),
             IMError::Var(ref err) => err.description(),
             IMError::De(ref err) => err.description(),
+            IMError::SerdeJson(ref err) => err.description(),
             IMError::IM(ref err) => err.description(),
         }
     }
@@ -76,6 +82,7 @@ impl error::Error for IMError {
             IMError::Git(ref err) => Some(err),
             IMError::Var(ref err) => Some(err),
             IMError::De(ref err) => Some(err),
+            IMError::SerdeJson(ref err) => Some(err),
             IMError::IM(ref err) => Some(err),
         }
     }
@@ -108,6 +115,12 @@ impl From<std::env::VarError> for IMError {
 impl From<toml::de::Error> for IMError {
     fn from(err: toml::de::Error) -> IMError {
         IMError::De(err)
+    }
+}
+
+impl From<serde_json::Error> for IMError {
+    fn from(err: serde_json::Error) -> IMError {
+        IMError::SerdeJson(err)
     }
 }
 

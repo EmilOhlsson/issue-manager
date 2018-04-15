@@ -1,22 +1,21 @@
 use std::env;
-use error::IMResult;
+use error::{IMError, IMResult};
 use toml::Value;
 
-type IMSettings = Value;
+pub type IMSettings = Value;
 
 pub fn get_settings() -> IMResult<IMSettings> {
     use std::fs::File;
     use std::io::prelude::*;
     use toml::Value;
-
-    let mut f = File::open(format!("{}/.iman.toml", env::var("HOME")?))?;
+    let file = format!("{}/.iman.toml", env::var("HOME")?);
+    let mut f = match File::open(&file) {
+        Ok(file) => file,
+        Err(e) => return Err(IMError::new(&format!("Unable to open: {}: {}", &file, e))),
+    };
     let mut buffer = String::new();
-    f.read_to_string(&mut buffer).unwrap();
+    f.read_to_string(&mut buffer)?;
 
-    println!("Read: {}", buffer);
     let table = buffer.parse::<Value>()?;
-    println!("{:?}", table);
-    println!("Deeenk {}", table["foo"]["yoo"]);
     Ok(table)
 }
-
