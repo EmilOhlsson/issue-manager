@@ -1,5 +1,5 @@
-use std::env;
 use error::{IMError, IMResult};
+use std::env;
 use toml::Value;
 
 pub type IMSettings = Value;

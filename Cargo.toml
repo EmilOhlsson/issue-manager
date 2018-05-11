@@ -4,8 +4,11 @@ version = "0.1.0"
 authors = ["Emil Ohlsson <kotte@kottland.net>"]
 
 [dependencies]
+clap = "^2.31"
 git2 = "0.7.1"
 hyper = "^0.11"
+log = "0.4.0"
+env_logger = "0.5.10"
 prettytable-rs = "^0.6"
 reqwest = "0.8.5"
 serde = "1.0"

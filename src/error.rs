@@ -1,10 +1,10 @@
+use git2;
+use reqwest;
+use serde_json;
+use std;
 use std::error;
 use std::fmt;
-use reqwest;
-use git2;
-use std;
 use toml;
-use serde_json;
 
 #[derive(Debug)]
 pub struct IMErr {
