@@ -1,6 +1,6 @@
 use git2;
-use reqwest;
 use hyper;
+use reqwest;
 use serde_json;
 
 use error::{IMError, IMResult};
@@ -129,8 +129,8 @@ pub fn get_issues(server: &GitServer) -> IMResult<Vec<IMIssue>> {
     let mut rsp = request.send()?;
     rsp.read_to_string(&mut response)?;
     if rsp.status() != reqwest::StatusCode::Ok {
-        println!("Status: {:?}", rsp.status());
-        println!("Got: {:?}", response);
+        error!("Status: {:?}", rsp.status());
+        info!("Got: {:?}", response);
         return Err(IMError::new("Error fetching issues"));
     }
 
