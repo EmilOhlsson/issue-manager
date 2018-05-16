@@ -24,7 +24,20 @@ pub struct GitHubIssue {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct GitLabIssue {}
+pub struct GitLabLabel {}
+
+#[derive(Deserialize, Debug)]
+pub struct GitLabUser {
+    name: String,
+    username: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct GitLabIssue {
+    title: String,
+    description: String,
+    assignees: Vec<GitLabUser>,
+}
 
 #[derive(Debug)]
 pub enum IMIssue {
@@ -46,25 +59,39 @@ impl Issue for GitHubIssue {
     }
 }
 
+impl Issue for GitLabIssue {
+    fn name(&self) -> &str {
+        &self.title
+    }
+
+    fn assignee(&self) -> &str {
+        "unimplemented"
+    }
+
+    fn description(&self) -> &str {
+        &self.description
+    }
+}
+
 impl Issue for IMIssue {
     fn name(&self) -> &str {
         match *self {
             IMIssue::GitHub(ref i) => i.name(),
-            _ => unimplemented!(),
+            IMIssue::GitLab(ref i) => i.name(),
         }
     }
 
     fn assignee(&self) -> &str {
         match *self {
             IMIssue::GitHub(ref i) => i.assignee(),
-            _ => unimplemented!(),
+            IMIssue::GitLab(ref i) => i.assignee(),
         }
     }
 
     fn description(&self) -> &str {
         match *self {
             IMIssue::GitHub(ref i) => i.description(),
-            _ => unimplemented!(),
+            IMIssue::GitLab(ref i) => i.description(),
         }
     }
 }

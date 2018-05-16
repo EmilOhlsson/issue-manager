@@ -10,7 +10,7 @@ use settings::IMSettings;
 use std::io::Read;
 use std::{fmt, str::FromStr};
 
-header! { (PrivateToken, "PRIVATE_TOKEN") => [String] }
+header! { (PrivateToken, "PRIVATE-TOKEN") => [String] }
 
 // TODO: Token should probably be pushed upstream
 #[derive(Clone, PartialEq, Debug)]
@@ -117,6 +117,8 @@ pub fn get_server(path: &str, remote: &str, config: &IMSettings) -> IMResult<Git
 pub fn get_issues(server: &GitServer) -> IMResult<Vec<IMIssue>> {
     let mut response = String::new();
     let client = reqwest::Client::new();
+
+    trace!("Accessing API at {}", server.api);
     let mut request = client.get(&format!("{}/issues", server.api));
     if let &Some(ref key) = &server.key {
         match server.protocol {
@@ -126,14 +128,18 @@ pub fn get_issues(server: &GitServer) -> IMResult<Vec<IMIssue>> {
             GitProtocol::GitLab => request.header(PrivateToken(key.to_owned())),
         };
     }
+
+    trace!("Built request: {:?}", request);
     let mut rsp = request.send()?;
     rsp.read_to_string(&mut response)?;
     if rsp.status() != reqwest::StatusCode::Ok {
         error!("Status: {:?}", rsp.status());
-        info!("Got: {:?}", response);
+        trace!("Got: {:?}", response);
+        /* TODO: When receiving an error, parse it and report it readably */
         return Err(IMError::new("Error fetching issues"));
     }
 
+    trace!("Got issue data. Will parse into list: {:?}", response);
     match server.protocol {
         GitProtocol::GitHub => {
             let gh_issues = serde_json::from_str::<Vec<GitHubIssue>>(&response)?;

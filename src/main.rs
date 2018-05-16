@@ -33,7 +33,7 @@ use settings::get_settings;
 
 /* TODO: Read fields from repository */
 const ABOUT: &str = "Reads GitHub/GitLab issues for git repository";
-const AUTHOR: &str = "Emil Ohlsson";
+const AUTHOR: &str = "Emil Ohlsson, emil@kottland.net";
 const DIRECTORY: &str = "directory";
 const PROG: &str = "issue-handler";
 const REMOTE: &str = "remote";
