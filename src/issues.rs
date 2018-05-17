@@ -65,6 +65,7 @@ impl Issue for GitLabIssue {
     }
 
     fn assignee(&self) -> &str {
+        /* TODO: Assignee should be a string with assignees */
         "unimplemented"
     }
 

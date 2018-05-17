@@ -70,10 +70,9 @@ impl FromStr for GitServer {
     type Err = IMError;
 
     fn from_str(addr: &str) -> IMResult<GitServer> {
-        /* Assume that address is either something like
-         * https://github.com/EmilOhlsson/issue-manager.git
-         * git@github.com:EmilOhlsson/issue-manager.git
-         */
+        /* Assume that address is either something like:
+         * - https://github.com/EmilOhlsson/issue-manager.git
+         * - git@github.com:EmilOhlsson/issue-manager.git */
         let ts = addr.split(url_splitter)
             .filter(|s| s.len() > 0)
             .collect::<Vec<&str>>();
