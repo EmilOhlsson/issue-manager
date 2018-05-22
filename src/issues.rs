@@ -65,8 +65,10 @@ impl Issue for GitLabIssue {
     }
 
     fn assignee(&self) -> &str {
-        /* TODO: Assignee should be a string with assignees */
-        "unimplemented"
+        &self.assignees
+            .get(0)
+            .map(|u| u.username.as_ref())
+            .unwrap_or("No one")
     }
 
     fn description(&self) -> &str {

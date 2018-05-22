@@ -32,6 +32,7 @@ use log::LevelFilter;
 use prettytable::Table;
 use settings::get_settings;
 
+/* Package information */
 const ABOUT: &str = env!("CARGO_PKG_DESCRIPTION");
 const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
 const PROG: &str = env!("CARGO_PKG_NAME");
@@ -42,6 +43,9 @@ const DIRECTORY: &str = "directory";
 const REMOTE: &str = "remote";
 const VERBOSITY: &str = "verbosity";
 const LINE_LENGTH: &str = "line-length";
+
+/* Default values */
+const DEFAULT_LINE_LENGTH: usize = 8 * 16;
 
 fn list_issues() -> IMResult<()> {
     /* TODO: Argument parsing should be in a separate function */
@@ -82,7 +86,12 @@ fn list_issues() -> IMResult<()> {
         )
         .get_matches();
 
-    let line_length = matches.value_of(LINE_LENGTH).map(|s| s.parse::<usize>().unwrap_or(72)).unwrap_or(72);
+    /* TODO: Line length should by default be read from terminal, and then the line length should
+     * be split into the blocks */
+    let line_length = matches
+        .value_of(LINE_LENGTH)
+        .map(|s| s.parse::<usize>().unwrap_or(DEFAULT_LINE_LENGTH))
+        .unwrap_or(DEFAULT_LINE_LENGTH);
     let remote = matches.value_of(REMOTE).unwrap_or("origin");
     let directory = matches.value_of(DIRECTORY).unwrap_or(".");
     let verbosity = match matches.occurrences_of(VERBOSITY) {
@@ -102,10 +111,18 @@ fn list_issues() -> IMResult<()> {
     let server = get_server(directory, remote, &settings)?;
     let issues: Vec<IMIssue> = get_issues(&server)?;
 
+    let name_len = line_length / 8;
+    let assignee_len = line_length / 4;
+    let description_len = line_length - name_len - assignee_len;
+
     let mut table = Table::new();
     table.add_row(row![b -> "Title", b-> "Assignee", b -> "Description"]);
     for i in &issues {
-        table.add_row(row![i.name(), i.assignee(), textwrap::fill(i.description(), line_length)]);
+        table.add_row(row![
+            textwrap::fill(i.name(), name_len),
+            textwrap::fill(i.assignee(), assignee_len),
+            textwrap::fill(i.description(), description_len)
+        ]);
     }
     table.printstd();
 
